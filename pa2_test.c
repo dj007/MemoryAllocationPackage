@@ -30,7 +30,7 @@
 
 
 // Comment out the following 4 lines
-#define my_malloc(X)                      malloc(X)
+//#define my_malloc(X)                      malloc(X)
 #define my_free(X)                        free(X)
 #define my_mallopt(X)                     dummymallopt(X)
 #define my_mallinfo                       dummymallinfo
