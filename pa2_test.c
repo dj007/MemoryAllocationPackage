@@ -33,7 +33,7 @@
 //#define my_malloc(X)                      malloc(X)
 #define my_free(X)                        free(X)
 #define my_mallopt(X)                     dummymallopt(X)
-#define my_mallinfo                       dummymallinfo
+//#define my_mallinfo                       dummymallinfo
 
 
 // No need to modify anything below.. unless you find a bug in the tester!

@@ -44,10 +44,20 @@ void *my_malloc(int size)
     }
     
 #if DEBUG_MALLOC
-    printf("The MemBlkPtr->FreeBlock value is: \t%p\n", MemBlkPtr->FreeBlock);
-    printf("The size value is: \t%i\n", size);
     printf("The sbrk(0) value is: \t%p\n", MemBlkPtr);
+    printf("The size value is: \t%i\n", size);
+    printf("The MemBlkPtr->FreeBlock value is: \t%X\n", &(MemBlkPtr->FreeBlock));
 #endif
     
+    //Increment the number of butes allocated
+    TotalNumBytesAllocated += size;
+    
     return MemBlkPtr->FreeBlock;
+}
+
+void my_mallinfo() 
+{
+    printf("Total Number of Bytes ALLOCATED is: \t%i\n", TotalNumBytesAllocated);
+    printf("Total Number of Bytes in FREE SPACE is: \t%i\n", TotalFreeSpace );
+    printf("Total Number of Bytes in LARGEST CONTIGUOUS BLOCK is: \t%i\n", LargestContiguousFreeSpace);
 }

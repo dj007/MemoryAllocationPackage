@@ -32,9 +32,9 @@ typedef struct FreeDLL{
 } FreeDLL;
 
 //Translation Unit variables
-static int TotalNumBytesAllocated;
-static int TotalFreeSpace;
-static int LargestContiguousFreeSpace;
+static int TotalNumBytesAllocated = 0 ;
+static int TotalFreeSpace = 0;
+static int LargestContiguousFreeSpace = 0;
 
 #endif	/* MYMALLOC_H */
 
