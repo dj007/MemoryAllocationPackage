@@ -8,15 +8,18 @@
 
 #include "mymalloc.h"
 
-#define DEBUG_MALLOC 0
+#define DEBUG_MALLOC    0
+#define DEBUG_FREE      0
 
-#if DEBUG_MALLOC
+#if (DEBUG_MALLOC||DEBUG_FREE)
 #include <stdio.h>
 #endif
 
+//Global Variables
+static MemoryBlock * MemBlkPtr;
+
 void *my_malloc(int size)
 {
-    MemoryBlock * MemBlkPtr;
     void * curr_break = sbrk(0);
 
 #if DEBUG_MALLOC
@@ -57,13 +60,46 @@ void *my_malloc(int size)
     //Increment the number of butes allocated
     TotalNumBytesAllocated += size;
     
-    return (void *) MemBlkPtr->FreeBlock;
+#if DEBUG_MALLOC
+    printf("The MemBlkPtr->FreeBlock value is: \t%p\n", MemBlkPtr->FreeBlock);
+#endif
+    
+    return (void *) &(MemBlkPtr->FreeBlock);
     
 }
 
+//Print Allocation Info
 void my_mallinfo() 
 {
     printf("Total Number of Bytes ALLOCATED is: \t%i\n", TotalNumBytesAllocated);
     printf("Total Number of Bytes in FREE SPACE is: \t%i\n", TotalFreeSpace );
     printf("Total Number of Bytes in LARGEST CONTIGUOUS BLOCK is: \t%i\n", LargestContiguousFreeSpace);
+}
+
+void my_free(void *ptr)
+{
+    //If the argument of my_free is NULL, then the call should not free anything
+    if (ptr == NULL) 
+    {
+#if DEBUG_FREE
+    printf("Null Pointer detected!\n");
+#endif
+        return;
+    }
+    
+    int size;
+    
+    FreeMemoryBlock* FMBlk;
+    FMBlk->previousFreeBlock = ptr;
+    size = FMBlk->lengthOfBlock;
+    
+#if DEBUG_FREE
+    printf("\nThe size of the freed Block is: \t%i\n", size);
+    printf("Ptr is: \t%p\n", ptr);
+    printf("FMBlk->lengthOfBlock is: \t%i\n", FMBlk->lengthOfBlock);
+#endif
+    
+    //Update the number of bytes freed
+    TotalFreeSpace += size;
+    
 }

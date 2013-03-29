@@ -23,14 +23,23 @@ void my_mallinfo();
 //Data structures
 typedef struct MemoryBlock {
     int lengthOfBlock;
-//    void * previousFreeBlock;
-//    void * nextFreeBlock;
     void * FreeBlock; 
 } MemoryBlock;
 
+typedef struct FreeMemoryBlock {
+    int lengthOfBlock;
+    void * previousFreeBlock;
+    void * nextFreeBlock;
+    void * FreeBlock; 
+} FreeMemoryBlock;
+
 typedef struct FreeDLL{
-    MemoryBlock * head;
+    FreeMemoryBlock * head;
+    FreeMemoryBlock * tail;
 } FreeDLL;
+
+//Helper Functions for FreeDLL
+
 
 //Translation Unit variables
 static int TotalNumBytesAllocated = 0 ;
