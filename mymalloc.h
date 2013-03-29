@@ -11,6 +11,7 @@
 
 //Includes
 #include <unistd.h>
+#include "myerror.c"
 
 //Function declarations
 void * my_malloc(int size);

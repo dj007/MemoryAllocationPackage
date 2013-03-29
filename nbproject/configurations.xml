@@ -4,6 +4,7 @@
     <logicalFolder name="HeaderFiles"
                    displayName="Header Files"
                    projectFiles="true">
+      <itemPath>myerror.c</itemPath>
       <itemPath>mymalloc.h</itemPath>
     </logicalFolder>
     <logicalFolder name="ResourceFiles"
@@ -38,6 +39,8 @@
       </toolsSet>
       <compileType>
       </compileType>
+      <item path="myerror.c" ex="false" tool="0" flavor2="0">
+      </item>
       <item path="mymalloc.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="mymalloc.h" ex="false" tool="3" flavor2="0">
@@ -64,6 +67,8 @@
           <developmentMode>5</developmentMode>
         </asmTool>
       </compileType>
+      <item path="myerror.c" ex="false" tool="0" flavor2="0">
+      </item>
       <item path="mymalloc.c" ex="false" tool="0" flavor2="0">
       </item>
       <item path="mymalloc.h" ex="false" tool="3" flavor2="0">

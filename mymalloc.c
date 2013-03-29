@@ -31,14 +31,16 @@ void *my_malloc(int size)
     
     if(MemBlkPtr != curr_break)
     {
-        printf("ERROR:\tCannot allocate using sbrk() successfully!\n");
+        my_malloc_error = "ERROR:\tCannot allocate using sbrk() successfully!\n";
+        perror(my_malloc_error);
         return 0;
     }
     
     //Update current Break
     if (brk((MemBlkPtr+size+1)) != 0)
     {
-        printf("ERROR:\tCannot update using brk() successfully!\n");
+        my_malloc_error = "ERROR:\tCannot update using brk() successfully!\n";
+        perror(my_malloc_error);
         printf("The MemBlkPtr value is: \t%p\n", MemBlkPtr);
         return 0;
     }
