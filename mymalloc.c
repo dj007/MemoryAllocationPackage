@@ -39,7 +39,8 @@ void *my_malloc(int size)
     if (brk((MemBlkPtr+size+1)) != 0)
     {
         printf("ERROR:\tCannot update using brk() successfully!\n");
-        printf("The MemBlkPtr value is: \t%p\n", MemBlkPtr);
+        printf("T 
+he MemBlkPtr value is: \t%p\n", MemBlkPtr);
         return 0;
     }
     
@@ -49,10 +50,14 @@ void *my_malloc(int size)
     printf("The MemBlkPtr->FreeBlock value is: \t%X\n", &(MemBlkPtr->FreeBlock));
 #endif
     
+    //Update the number of Bytes in LengthOfBlock
+    MemBlkPtr->lengthOfBlock = size;
+    
     //Increment the number of butes allocated
     TotalNumBytesAllocated += size;
     
-    return MemBlkPtr->FreeBlock;
+    return (void *) MemBlkPtr->FreeBlock;
+    
 }
 
 void my_mallinfo() 
