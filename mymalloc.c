@@ -39,8 +39,7 @@ void *my_malloc(int size)
     if (brk((MemBlkPtr+size+1)) != 0)
     {
         printf("ERROR:\tCannot update using brk() successfully!\n");
-        printf("T 
-he MemBlkPtr value is: \t%p\n", MemBlkPtr);
+        printf("The MemBlkPtr value is: \t%p\n", MemBlkPtr);
         return 0;
     }
     
