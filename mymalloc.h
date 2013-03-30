@@ -9,6 +9,10 @@
 #ifndef MYMALLOC_H
 #define	MYMALLOC_H
 
+//Defines:
+#define FIRST_FIT                         1
+#define BEST_FIT                          2 
+
 //Includes
 #include <unistd.h>
 #include "myerror.c"
