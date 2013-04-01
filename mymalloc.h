@@ -32,8 +32,8 @@ typedef struct MemoryBlock {
 
 typedef struct FreeMemoryBlock {
     int lengthOfBlock;
-    void * previousFreeBlock;
-    void * nextFreeBlock;
+    union FreeMemoryBlock * previousFreeBlock;
+    union FreeMemoryBlock * nextFreeBlock;
     void * FreeBlock; 
 } FreeMemoryBlock;
 
