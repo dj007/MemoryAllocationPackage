@@ -25,52 +25,27 @@ void my_mallopt(int policy);
 void my_mallinfo();
 
 //Data structures
-typedef long long Align;
-
-//union MemoryBlock_union {
-//
-//    struct {
-//        int lengthOfBlock;
-//        union MemoryBlock_union * FreeBlock;
-//    } MemoryBlock_struct;
-//    Align data; //This should force alignment of blocks to 64bit machine
-//};
-//typedef MemoryBlock_union MemoryBlock;
-//
-//union FreeMemoryBlock_union {
-//
-//    struct {
-//        int lengthOfBlock;
-//        union FreeMemoryBlock_union * previousFreeBlock;
-//        union FreeMemoryBlock_union * nextFreeBlock;
-//        union FreeMemoryBlock_union * FreeBlock;
-//    } FreeMemoryBlock_struct;
-//    Align data; //This should force alignment of blocks to 64bit machine
-//};
-//typedef FreeMemoryBlock_union FreeMemoryBlock;
-
-
+typedef int Align;
 
 struct MemBlock {
     int size;
     struct MemBlock * next;
     struct MemBlock * prev;
     Align Free;
-    char tag[1];
+//    int Padding[2];
+   // char tag[1];
 } MemBlock;
 
 typedef struct MemBlock FreeMemoryBlock;
 
-typedef struct FreeDLL {
-    FreeMemoryBlock * head;
-    FreeMemoryBlock * tail;
-} FreeDLL;
+#define BLOCK_SIZE      24  //sizeof(FreeMemoryBlock)
 
 //Helper Functions 
-static FreeMemoryBlock * ExtendHeap(FreeMemoryBlock* last, int size);
-static FreeMemoryBlock * FindMemBlk(FreeMemoryBlock** last, int size);
-
-
+static FreeMemoryBlock* ExtendHeap(FreeMemoryBlock* last, int size);
+static FreeMemoryBlock* FindMemBlk(FreeMemoryBlock** last, int size);
+static FreeMemoryBlock* MergeMemBlk(FreeMemoryBlock* Blk);
+static FreeMemoryBlock* GetMemBlk(void * Ptr);
+static int isAddrValid(void * Ptr);
 
 //Translation Unit variables
 static int TotalNumBytesAllocated = 0;
