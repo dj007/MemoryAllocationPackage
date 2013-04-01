@@ -25,28 +25,55 @@ void my_mallopt(int policy);
 void my_mallinfo();
 
 //Data structures
-typedef struct MemoryBlock_struct {
-    int lengthOfBlock;
-    union MemoryBlock * FreeBlock; 
-} MemoryBlock;
+typedef long long Align;
 
-typedef struct FreeMemoryBlock_struct {
-    int lengthOfBlock;
-    union FreeMemoryBlock * previousFreeBlock;
-    union FreeMemoryBlock * nextFreeBlock;
-    void * FreeBlock; 
-} FreeMemoryBlock;
+//union MemoryBlock_union {
+//
+//    struct {
+//        int lengthOfBlock;
+//        union MemoryBlock_union * FreeBlock;
+//    } MemoryBlock_struct;
+//    Align data; //This should force alignment of blocks to 64bit machine
+//};
+//typedef MemoryBlock_union MemoryBlock;
+//
+//union FreeMemoryBlock_union {
+//
+//    struct {
+//        int lengthOfBlock;
+//        union FreeMemoryBlock_union * previousFreeBlock;
+//        union FreeMemoryBlock_union * nextFreeBlock;
+//        union FreeMemoryBlock_union * FreeBlock;
+//    } FreeMemoryBlock_struct;
+//    Align data; //This should force alignment of blocks to 64bit machine
+//};
+//typedef FreeMemoryBlock_union FreeMemoryBlock;
 
-typedef struct FreeDLL{
+
+
+struct MemBlock {
+    int size;
+    struct MemBlock * next;
+    struct MemBlock * prev;
+    Align Free;
+    char tag[1];
+} MemBlock;
+
+typedef struct MemBlock FreeMemoryBlock;
+
+typedef struct FreeDLL {
     FreeMemoryBlock * head;
     FreeMemoryBlock * tail;
 } FreeDLL;
 
-//Helper Functions for FreeDLL
+//Helper Functions 
+static FreeMemoryBlock * ExtendHeap(FreeMemoryBlock* last, int size);
+static FreeMemoryBlock * FindMemBlk(FreeMemoryBlock** last, int size);
+
 
 
 //Translation Unit variables
-static int TotalNumBytesAllocated = 0 ;
+static int TotalNumBytesAllocated = 0;
 static int TotalFreeSpace = 0;
 static int LargestContiguousFreeSpace = 0;
 
