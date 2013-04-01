@@ -25,12 +25,12 @@ void my_mallopt(int policy);
 void my_mallinfo();
 
 //Data structures
-typedef struct MemoryBlock {
+typedef struct MemoryBlock_struct {
     int lengthOfBlock;
-    void * FreeBlock; 
+    union MemoryBlock * FreeBlock; 
 } MemoryBlock;
 
-typedef struct FreeMemoryBlock {
+typedef struct FreeMemoryBlock_struct {
     int lengthOfBlock;
     union FreeMemoryBlock * previousFreeBlock;
     union FreeMemoryBlock * nextFreeBlock;
