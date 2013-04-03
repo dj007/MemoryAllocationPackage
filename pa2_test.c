@@ -31,8 +31,8 @@
 
 // Comment out the following 4 lines
 //#define my_malloc(X)                      malloc(X)
-#define my_free(X)                        free(X)
-#define my_mallopt(X)                     dummymallopt(X)
+//#define my_free(X)                        free(X)
+//#define my_mallopt(X)                     dummymallopt(X)
 //#define my_mallinfo                       dummymallinfo
 
 
@@ -55,7 +55,57 @@ int main(int argc, char *argv[])
 	int i, count = 0;
 	void *ptr, *limitafter = NULL, *limitbefore = NULL;
 	char *c[32], *ct;
-
+        
+#if 0 //Amjad Debug test
+        puts("Amjad Debug test:\n");
+        char *str_temp = my_malloc(10);
+        str_temp = "hello!";
+        int * ptr1;
+        printf("Ptr_address before my_malloc:\t %p\n", ptr1);
+        printf("Brk address before my_malloc:\t %p\n", sbrk(0));
+        ptr = my_malloc(8);
+        printf("Ptr_address after my_malloc:\t %p\n", ptr1);
+        printf("Brk address after my_malloc:\t %p\n", sbrk(0));
+        printf("str_temp = %s, \tsize: %i\n", str_temp, sizeof(str_temp));
+#endif    
+#if 0 //Amjad Debug test
+        puts("Amjad Debug test:\n");
+        char *str_temp = my_malloc(13);
+     //   str_temp = "hello!";
+    //    int * ptr1;
+        printf("str_temp address after my_malloc:\t %p\n", str_temp);
+     //   printf("Ptr_address before my_malloc:\t %p\n", ptr1);
+     //   printf("Brk address before my_malloc:\t %p\n", sbrk(0));
+      //  ptr = my_malloc(8);
+     //   printf("Ptr_address after my_malloc:\t %p\n", ptr1);
+       // printf("Brk address after my_malloc:\t %p\n", sbrk(0));
+       // printf("str_temp = %s, \tsize: %i\n", str_temp, sizeof(str_temp));
+        return;
+#endif        
+#if 0 //Amjad Debug test
+        puts("Amjad Debug test:\n");
+        printf("The size of int is: \t%i\n", sizeof(int));
+        printf("The size of Align is: \t%i\n", sizeof (Align));
+        printf("The size of FreeMemoryBlock* is: \t%i\n", sizeof(FreeMemoryBlock*));
+        my_mallinfo();
+        char *str_temp;
+        str_temp = (char *)my_malloc(15);
+        printf("The value of str_temp is: \t%p\n", str_temp);
+        printf("The address of str_temp is: \t%x\n", str_temp);
+        my_free(str_temp);
+        my_mallinfo();
+        char * temp2 = (char *)my_malloc(34);
+        printf("The value of temp2 is: \t%p\n", temp2);
+        printf("The address of temp2 is: \t%x\n", temp2);
+        my_free(temp2);
+        my_mallinfo();
+        char * temp3 = (char *)my_malloc(16);
+        printf("The value of temp3 is: \t%p\n", temp3);
+        printf("The address of temp3 is: \t%x\n", temp3);
+        my_free(temp3);
+        my_mallinfo();
+        return;
+#endif
 	puts("Hole finding test....");
 
 	// Allocating 32 kbytes of memory..
@@ -64,7 +114,7 @@ int main(int argc, char *argv[])
 	// Now deallocating some of the slots ..to free
 	for(i=10; i<18;i++)
 		my_free(c[i]);
-
+        my_mallinfo();
 	// Allocate some storage .. this should go into the freed storage
 	ct = (char*)my_malloc(5*1024);
 
@@ -144,6 +194,6 @@ int main(int argc, char *argv[])
 
 	puts("Print some information..");
 	my_mallinfo();
-
-	return(0);
+        
+	return 0;
 }

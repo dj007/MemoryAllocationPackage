@@ -1,0 +1,4 @@
+gcc -c -Wall mymalloc.h mymalloc.c
+gcc -c -Wall pa2_test.c mymalloc.o
+gcc -c -Wall myerror.c
+gcc -o -Wall pa2_test pa2_test.o mymalloc.o myerror.o

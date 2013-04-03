@@ -31,7 +31,7 @@ struct MemBlock {
     int size;
     struct MemBlock * next;
     struct MemBlock * prev;
-    Align Free;
+    Align isFree;
 //    int Padding[2];
    // char tag[1];
 } MemBlock;
@@ -51,6 +51,7 @@ static int isAddrValid(void * Ptr);
 static int TotalNumBytesAllocated = 0;
 static int TotalFreeSpace = 0;
 static int LargestContiguousFreeSpace = 0;
+static int Policy = FIRST_FIT;
 
 #endif	/* MYMALLOC_H */
 

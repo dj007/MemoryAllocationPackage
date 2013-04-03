@@ -10,7 +10,7 @@
 
 #define DEBUG_MALLOC    1
 #define DEBUG_FREE      1
-#define MEMBLOCKSIZE    sizeof(struct MemBlock)
+#define MEMBLOCKSIZE    24 //sizeof(struct MemBlock)
 
 //MACROS:
 #define ALIGN(x) (((((x)-1)>>3)<<3)+8) //For 64-bit system
@@ -38,23 +38,31 @@ void *my_malloc(int size) {
 
     if (Base) //DLL already exists
     {
-#if DEBUG_MALLOC
+#if 1//DEBUG_MALLOC
         printf("There is a FreeDLL memblk \n");
 #endif
         last = Base;
         Blk = FindMemBlk(last, s);
         if (Blk) {
-            Blk->Free = 0;
+#if 1//DEBUG_MALLOC
+            printf("We found a FREE memblk in DLL! \n");
+            printf("The Base pointer value is: \t%p\n", Base);
+            printf("The last pointer value is: \t%p\n", last);
+#endif
+            Blk->isFree = 1;
         } else {
             Blk = ExtendHeap(last, s);
             if (!Blk) return NULL;
         }
     } else //There is no FreeDLL
     {
-#if DEBUG_MALLOC
-        printf("There is no FreeDLL memblk \n");
+#if 1//DEBUG_MALLOC
+        printf("CREATING A NEW MEMBLK \n");
 #endif
         Blk = ExtendHeap(last, s);
+#if DEBUG_MALLOC
+        printf("The Blk pointer value is: \t%p\n", Blk);
+#endif
         if (!Blk) return NULL;
         Base = Blk;
 #if DEBUG_MALLOC
@@ -65,118 +73,132 @@ void *my_malloc(int size) {
     //Increment the number of butes allocated
     TotalNumBytesAllocated += Blk->size;
 
-#if DEBUG_MALLOC
-    printf("The Blk->Free value is: \t%i\n", Blk->Free);
+#if 1//DEBUG_MALLOC
+    printf("The Blk->isFree value is: \t%i\n", Blk->isFree);
     printf("The Blk->size value is: \t%i\n", Blk->size);
 #endif
-    
-    return &(Blk->Free);
 
+    return &(Blk->isFree);
 }
 
 /**
  *Print Allocation Info 
  */
 void my_mallinfo() {
+    puts("\n==========MALLINFO===========\n");
     int NumOfElem = 0;
     LargestContiguousFreeSpace = 0;
+    TotalFreeSpace = 0;
     FreeMemoryBlock * iterator = Base;
     if (Base) {
         NumOfElem++;
         LargestContiguousFreeSpace = Base ->size;
+        TotalFreeSpace += Base ->size;
+        printf("The Value of Base is: \t%p\n", Base);
+        printf("The Size of Base is: \t%i\n", Base->size);
+        printf("The Value of Base->next is: \t%p\n", Base->next);
+        printf("The Value of Base->prev is: \t%p\n", Base->prev);
+        printf("The value of Base->isFree is: \t%i\n", Base->isFree);
     }
 
     while ((Base)&&(iterator->next)) {
         NumOfElem++;
-        if (iterator->next->size > LargestContiguousFreeSpace)
+        printf("The Value of FreeElem[%i] is: \t%p\n", NumOfElem - 1, iterator->next);
+        printf("The Size of FreeElem[%i] is: \t%i\n", NumOfElem - 1, iterator->size);
+        printf("The Value of FreeElem[%i]->next is: \t%p\n", NumOfElem - 1, iterator->next->next);
+        printf("The Value of FreeElem[%i]->prev is: \t%p\n", NumOfElem - 1, iterator->next->prev);
+        printf("The value of FreeElem[%i]->isFree is: \t%i\n", NumOfElem - 1, iterator->next->isFree);
+        if ((iterator->next) && (iterator->next->size > LargestContiguousFreeSpace))
             LargestContiguousFreeSpace = iterator->next->size;
-        iterator = iterator->next;
+        //Update the number of bytes freed
+        TotalFreeSpace += iterator->next->size;
+        if (isAddrValid(iterator->next)) {
+            iterator = iterator->next;
+        } else {
+            break;
+        }
     }
 
     printf("Total Number of Bytes ALLOCATED is: \t\t\t%i\n", TotalNumBytesAllocated);
     printf("Total Number of Bytes in FREE SPACE is: \t\t%i\n", TotalFreeSpace);
     printf("Total Number of Bytes in LARGEST CONTIGUOUS BLOCK is: \t%i\n", LargestContiguousFreeSpace);
     printf("Total Number of FREE BLOCKS is: \t\t\t%i\n", NumOfElem);
+    printf("The Base pointer value is: \t%p\n", Base);
+    printf("=========COMPLETED MALLINFO!==============\n");
 }
 
 void my_free(void *Ptr) {
+#if DEBUG_FREE
+    printf("INSIDE MY_FREE()!\n");
+#endif
     //If the argument of my_free is NULL, then the call should not free anything
     if (Ptr == NULL) {
-#if DEBUG_FREE
         printf("Null Pointer detected!\n");
-#endif
         return;
     }
+#if DEBUG_FREE
+    printf("The Base pointer value is: \t%p\n", Base);
+    printf("The value of ptr is: \t%p\n", Ptr);
+    printf("The value of sbrk(0) is: \t%p\n", sbrk(0));
+    printf("The value of Base is: \t%p\n", Base);
+    printf("The value of isAddrValid(Ptr) is: \t%i\n", isAddrValid(Ptr));
+#endif
 
     FreeMemoryBlock* Blk;
 
-#if DEBUG_FREE
-        printf("The value of ptr is: \t%p\n", Ptr);
-        printf("The value of sbrk(0) is: \t%p\n", sbrk(0));
-        printf("The value of Base is: \t%p\n", Base);
-        printf("The value of isAddrValid(Ptr) is: \t%i\n", isAddrValid(Ptr));
-#endif
-    
     if (isAddrValid(Ptr)) {
         Blk = GetMemBlk(Ptr);
 #if DEBUG_FREE
-        printf("The value of ptr is: \t%p\n", Ptr);
-        printf("The value of Blk is: \t%p\n", Blk);
         printf("The value of Blk->size is: \t%i\n", Blk->size);
         printf("The value of Blk->prev is: \t%p\n", Blk->prev);
         printf("The value of Blk->next is: \t%p\n", Blk->next);
 #endif
-        Blk->Free = 1;
+        Blk->isFree = 0;
         //Merge with previous if possible
-        if (Blk->prev && Blk->prev->Free) {
+        if (Blk->prev && !(Blk->prev->isFree)) {
 #if DEBUG_FREE
-            printf("Merge with previous if possible\n");
+            printf("Merge with previous!\n");
 #endif
             Blk = MergeMemBlk(Blk->prev);
         }
         //Merge with the next
         if (Blk->next) {
 #if DEBUG_FREE
-            printf("Merge with the next\n");
+            printf("Merge with next\n");
 #endif
             MergeMemBlk(Blk);
-        } else {
-            //Free the end of the heap
-            if (Blk->prev) {
-#if DEBUG_FREE
-                printf("Free the end of the heap\n");
-#endif
-                Blk->prev->next = NULL;
-            } else {
-#if DEBUG_FREE
-                printf("No more block\n");
-#endif      
-                //No more block
-                Base = NULL;
-            }
-#if DEBUG_FREE
-            printf("The size of the freed Block is: \t%i\n", Blk->size);
-#endif
-            //Update the number of bytes freed
-            TotalFreeSpace += Blk->size;
-            //Update brk()
-            brk(Blk);
         }
+        //        else {
+        //            //isFree the end of the heap
+        //            if (Blk->prev) {
+        //#if DEBUG_FREE
+        //                printf("isFree the end of the heap\n");
+        //#endif
+        //                Blk->prev->next = NULL;
+        //            } else {
+        //#if DEBUG_FREE
+        //                printf("No more block!\n");
+        //#endif      
+        //                //No more block!
+        //                Base = NULL;
+        //            }
+        //#if DEBUG_FREE
+        //            printf("The size of the freed Block is: \t%i\n", Blk->size);
+        //#endif
+        //            //Update the number of bytes freed
+        //            TotalFreeSpace += Blk->size;
+        //            //Update brk()
+        //            brk(Blk);
+        //        }
     }
 #if DEBUG_FREE
-    else
-    {        
+    else {
         printf("INVALID ADDRESS!\n");
+        return NULL;
     }
-#endif
-        
-#if DEBUG_FREE
-//    printf("\nThe value of ptr is: \t%p\n", Ptr);
-//    printf("\nThe value of Blk is: \t%p\n", Blk);
-#endif
 
-    //Update the number of bytes freed
-    //TotalFreeSpace += Blk->size;
+    printf("COMPLETED FREEMEM!\n");
+#endif
 }
 
 /**
@@ -188,10 +210,10 @@ void my_free(void *Ptr) {
 static FreeMemoryBlock* ExtendHeap(FreeMemoryBlock* last, int size) {
     FreeMemoryBlock * MemBlkPtr;
     //Allocate Space from OS:
-    void* curr_break = sbrk(0);
+    MemBlkPtr = sbrk(0);
 
 #if DEBUG_MALLOC
-    printf("The curr_break value is: \t%p\n", curr_break);
+    printf("The MemBlkPtr value is: \t%p\n", MemBlkPtr);
 #endif
 
     MemBlkPtr = sbrk(size + MEMBLOCKSIZE);
@@ -200,7 +222,7 @@ static FreeMemoryBlock* ExtendHeap(FreeMemoryBlock* last, int size) {
     printf("The MemBlkPtr value is: \t%p\n", MemBlkPtr);
 #endif
 
-    if (MemBlkPtr != curr_break) {
+    if (MemBlkPtr == (void*) - 1) {
         my_malloc_error = "ERROR:\tCannot allocate using sbrk() successfully!\n";
         perror(my_malloc_error);
         return 0;
@@ -211,44 +233,69 @@ static FreeMemoryBlock* ExtendHeap(FreeMemoryBlock* last, int size) {
     MemBlkPtr->next = NULL;
 
     //Update current Break
-    if (brk((MemBlkPtr + size + MEMBLOCKSIZE)) != 0) {
-        my_malloc_error = "ERROR:\tCannot update using brk() successfully!\n";
-        perror(my_malloc_error);
-        printf("The MemBlkPtr value is: \t%p\n", MemBlkPtr);
-        return 0;
-    }
+    //    if (brk((MemBlkPtr + size + MEMBLOCKSIZE)) != 0) {
+    //        my_malloc_error = "ERROR:\tCannot update using brk() successfully!\n";
+    //        perror(my_malloc_error);
+    //        printf("The MemBlkPtr value is: \t%p\n", MemBlkPtr);
+    //        return 0;
+    //        }
 
 #if DEBUG_MALLOC
     printf("The sbrk(0) value is: \t%p\n", MemBlkPtr);
     printf("The size value is: \t%i\n", size);
-    printf("The MemBlkPtr->Free value is: \t%X\n", &(MemBlkPtr->Free));
+    printf("The MemBlkPtr->isFree value is: \t%X\n", &(MemBlkPtr->isFree));
 #endif
 
     if (last)
         last->next = MemBlkPtr;
 
-    MemBlkPtr->Free = 0;
+    MemBlkPtr->isFree = 1;
 
     return MemBlkPtr;
 }
 
+void my_mallopt(int policy) {
+    if ((policy == BEST_FIT) || (policy == FIRST_FIT)) {
+        Policy = policy;
+        char * str_tmp;
+        str_tmp = (Policy == BEST_FIT) ? "Best Fit" : "First Fit";
+        printf("The current allocation policy has been set to: \t%s\n", str_tmp);
+        return;
+    }
+    perror("UNRECOGNIZED POLICY\n");
+}
+
 static FreeMemoryBlock* FindMemBlk(FreeMemoryBlock** last, int size) {
     FreeMemoryBlock * iter = Base;
-    while (iter && !(iter->Free && iter->size >= size)) {
-        *last = iter;
-        iter = iter->next;
-    }
 
-    return (iter);
+    if (Policy == FIRST_FIT) {
+        while (iter && !(!(iter->isFree) && iter->size >= size)) {
+            *last = iter;
+            iter = iter->next;
+        }
+
+        return (iter);
+    } else if (Policy == BEST_FIT) {
+        FreeMemoryBlock * best = iter;
+        while (iter && !(!(iter->isFree) && iter->size >= size)) {
+            *last = iter;
+            iter = iter->next;
+        }
+
+    }
 }
 
 static FreeMemoryBlock* MergeMemBlk(FreeMemoryBlock * Blk) {
-    if (Blk->next && Blk->next->Free) {
+    if (Blk->next && !(Blk->next->isFree)) {
         Blk->size += BLOCK_SIZE + Blk->next->size;
         Blk->next = Blk->next->next;
         if (Blk->next)
             Blk->next->prev = Blk;
     }
+#if DEBUG_FREE
+    printf("\nCOMPLETED MERGE: The value of Blk is: \t%p\n", Blk);
+    //    printf("\nThe value of Blk is: \t%p\n", Blk);
+#endif    
     return (Blk);
 }
 
